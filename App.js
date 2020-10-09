@@ -1,6 +1,6 @@
 import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Header from './components/Header';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo'
@@ -19,28 +19,37 @@ export default function App() {
   }
 
   const submitHandler = (text) => {
-    setTodos((prevTodos) => {
-      return [
-        ...prevTodos,
-        { name: text, key: Math.random().toString() }
-      ]
-    })
+    if (text.length > 3) {
+      setTodos((prevTodos) => {
+        return [
+          ...prevTodos,
+          { name: text, key: Math.random().toString() }
+        ]
+      })
+    } else {
+      Alert.alert('OPPS!', 'Must be more than 3 chars long', [
+        { text: 'okay', onPress: () => console.log(text, ' length is < 3 chars long') }
+      ])
+    }
+
   }
 
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.content}>
-        <AddTodo submitHandler={submitHandler} />
-        <View style={styles.list}>
-          <FlatList
-            data={todos}
-            renderItem={({ item }) => (
-              <TodoList item={item} pressHandler={pressHandler} />
-            )} />
+    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.content}>
+          <AddTodo submitHandler={submitHandler} />
+          <View style={styles.list}>
+            <FlatList
+              data={todos}
+              renderItem={({ item }) => (
+                <TodoList item={item} pressHandler={pressHandler} />
+              )} />
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -50,12 +59,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#111'
   },
   content: {
-    padding: 40
+    padding: 40,
+    flex: 1
   },
   list: {
-    marginTop: 20
-  },
-  text: {
-    color: '#fff'
+    marginTop: 20,
+    flex: 1
   }
 });
